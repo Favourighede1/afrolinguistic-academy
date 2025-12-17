@@ -1,120 +1,126 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  Layers, 
-  Brain, 
-  RotateCcw, 
-  Trophy,
-  Flame,
-  Lock,
-  ChevronLeft,
-  ChevronRight,
-  Check,
-  X
-} from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Layers } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Layout } from '@/components/layout/Layout';
-import { AudioButton } from '@/components/AudioButton';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getLessonsByLanguage } from '@/data/lessons';
-import { cn } from '@/lib/utils';
+import { usePracticeProgress } from '@/hooks/usePracticeProgress';
+import { PracticeStats } from '@/components/practice/PracticeStats';
+import { DailyReviewPanel } from '@/components/practice/DailyReviewPanel';
+import { FreePracticePanel, DeckOption } from '@/components/practice/FreePracticePanel';
+import { QuickQuizPanel, QuizType, QuizDifficulty } from '@/components/practice/QuickQuizPanel';
+import { FlashcardSession, SessionResults } from '@/components/practice/FlashcardSession';
+import { QuizSession } from '@/components/practice/QuizSession';
+
+type PracticeMode = 'menu' | 'daily-review' | 'free-practice' | 'quiz';
 
 export default function Practice() {
   const { selectedLanguage } = useLanguage();
   const lessons = getLessonsByLanguage(selectedLanguage.id);
+  const { stats, recordReview, getDueCards, getHardCards } = usePracticeProgress(selectedLanguage.id);
   
-  // Combine all vocabulary from lessons for flashcards
-  const allVocabulary = lessons.flatMap(lesson => 
-    lesson.vocabulary.map(v => ({ ...v, lessonTitle: lesson.title }))
+  const [practiceMode, setPracticeMode] = useState<PracticeMode>('menu');
+  const [sessionCards, setSessionCards] = useState<any[]>([]);
+  const [quizSettings, setQuizSettings] = useState<{ quizType: QuizType; difficulty: QuizDifficulty } | null>(null);
+
+  // Combine all vocabulary from lessons
+  const allVocabulary = useMemo(() => 
+    lessons.flatMap(lesson => 
+      lesson.vocabulary.map(v => ({ ...v, lessonTitle: lesson.title }))
+    ), [lessons]
   );
 
-  const [flashcardIndex, setFlashcardIndex] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [practiceMode, setPracticeMode] = useState<'flashcards' | 'quiz' | null>(null);
+  const allCardIds = allVocabulary.map(v => v.id);
+  const dueCards = getDueCards(allCardIds);
+  const hardCards = getHardCards(allCardIds);
 
-  const currentCard = allVocabulary[flashcardIndex];
+  const hasBeginnerContent = lessons.some(l => l.level === 'beginner');
+  const hasIntermediateContent = lessons.some(l => l.level === 'intermediate');
 
-  const nextCard = () => {
-    setShowAnswer(false);
-    setFlashcardIndex((prev) => (prev + 1) % allVocabulary.length);
+  const handleStartDailyReview = (settings: { cardCount: number; includeAudio: boolean }) => {
+    const dueVocab = allVocabulary.filter(v => dueCards.includes(v.id));
+    const cardsToReview = dueVocab.slice(0, settings.cardCount);
+    
+    // If not enough due cards, add new cards
+    if (cardsToReview.length < settings.cardCount) {
+      const newCards = allVocabulary.filter(v => !dueCards.includes(v.id));
+      cardsToReview.push(...newCards.slice(0, settings.cardCount - cardsToReview.length));
+    }
+    
+    setSessionCards(cardsToReview);
+    setPracticeMode('daily-review');
   };
 
-  const prevCard = () => {
-    setShowAnswer(false);
-    setFlashcardIndex((prev) => (prev - 1 + allVocabulary.length) % allVocabulary.length);
+  const handleStartFreePractice = (deck: DeckOption) => {
+    let cardsToReview: typeof allVocabulary = [];
+    
+    switch (deck.type) {
+      case 'mixed':
+        cardsToReview = [...allVocabulary].sort(() => Math.random() - 0.5);
+        break;
+      case 'lesson':
+        const lesson = lessons.find(l => l.id === deck.lessonId);
+        if (lesson) {
+          cardsToReview = lesson.vocabulary.map(v => ({ ...v, lessonTitle: lesson.title }));
+        }
+        break;
+      case 'topic':
+        const topicLessons = lessons.filter(l => l.topic === deck.topic);
+        cardsToReview = topicLessons.flatMap(l => 
+          l.vocabulary.map(v => ({ ...v, lessonTitle: l.title }))
+        );
+        break;
+      case 'hard':
+        cardsToReview = allVocabulary.filter(v => hardCards.includes(v.id));
+        break;
+      default:
+        cardsToReview = allVocabulary;
+    }
+    
+    setSessionCards(cardsToReview);
+    setPracticeMode('free-practice');
   };
 
-  if (practiceMode === 'flashcards' && currentCard) {
+  const handleStartQuiz = (settings: { quizType: QuizType; difficulty: QuizDifficulty }) => {
+    setQuizSettings(settings);
+    setPracticeMode('quiz');
+  };
+
+  const handleSessionComplete = (results: SessionResults) => {
+    // Results are tracked via recordReview during the session
+    console.log('Session complete:', results);
+  };
+
+  const handleBackToMenu = () => {
+    setPracticeMode('menu');
+    setSessionCards([]);
+    setQuizSettings(null);
+  };
+
+  // Render active session
+  if (practiceMode === 'daily-review' || practiceMode === 'free-practice') {
     return (
       <Layout>
-        <section className="py-12">
-          <div className="container max-w-2xl">
-            <Button 
-              variant="ghost" 
-              className="mb-6"
-              onClick={() => setPracticeMode(null)}
-            >
-              <ChevronLeft className="h-4 w-4 mr-2" />
-              Back to Practice
-            </Button>
+        <FlashcardSession
+          cards={sessionCards}
+          mode={practiceMode === 'daily-review' ? 'daily' : 'free'}
+          onBack={handleBackToMenu}
+          onCardReview={recordReview}
+          onComplete={handleSessionComplete}
+        />
+      </Layout>
+    );
+  }
 
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold font-serif mb-2">Flashcards</h1>
-              <p className="text-muted-foreground">
-                Card {flashcardIndex + 1} of {allVocabulary.length}
-              </p>
-              <Progress 
-                value={(flashcardIndex + 1) / allVocabulary.length * 100} 
-                className="mt-4 h-2"
-              />
-            </div>
-
-            <Card 
-              className="min-h-[300px] cursor-pointer flex items-center justify-center"
-              onClick={() => setShowAnswer(!showAnswer)}
-            >
-              <CardContent className="text-center py-12">
-                {!showAnswer ? (
-                  <>
-                    <p className="text-4xl font-bold font-serif mb-4">{currentCard.word}</p>
-                    <p className="text-lg text-muted-foreground">[{currentCard.pronunciation}]</p>
-                    <AudioButton audioUrl={currentCard.audioUrl} className="mt-4" />
-                    <p className="text-sm text-muted-foreground mt-6">
-                      Tap to reveal translation
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p className="text-2xl text-muted-foreground mb-2">{currentCard.word}</p>
-                    <p className="text-4xl font-bold font-serif mb-4">{currentCard.translation}</p>
-                    <Badge variant="outline">{currentCard.lessonTitle}</Badge>
-                    <p className="text-sm text-muted-foreground mt-6">
-                      Tap to see word again
-                    </p>
-                  </>
-                )}
-              </CardContent>
-            </Card>
-
-            <div className="flex justify-center gap-4 mt-6">
-              <Button variant="outline" size="lg" onClick={prevCard}>
-                <ChevronLeft className="h-4 w-4 mr-2" />
-                Previous
-              </Button>
-              <Button size="lg" onClick={nextCard}>
-                Next
-                <ChevronRight className="h-4 w-4 ml-2" />
-              </Button>
-            </div>
-
-            <p className="text-center text-sm text-muted-foreground mt-8">
-              Sign in to save your progress and track which cards you've mastered.
-            </p>
-          </div>
-        </section>
+  if (practiceMode === 'quiz' && quizSettings) {
+    return (
+      <Layout>
+        <QuizSession
+          lessons={lessons}
+          quizType={quizSettings.quizType}
+          difficulty={quizSettings.difficulty}
+          onBack={handleBackToMenu}
+        />
       </Layout>
     );
   }
@@ -129,105 +135,64 @@ export default function Practice() {
               Practice {selectedLanguage.name}
             </h1>
             <p className="text-lg text-muted-foreground">
-              Reinforce your learning with flashcards and quizzes. 
-              Sign in to track your streak and progress.
+              Build lasting memory with daily reviews and quizzes. 100% Free Forever.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Stats Banner (for signed-in users preview) */}
-      <section className="py-6 border-b border-border bg-card">
+      {/* Stats Banner */}
+      <PracticeStats stats={stats} dueCardsCount={dueCards.length} />
+
+      {/* Main Content */}
+      <section className="py-8 md:py-12">
         <div className="container">
-          <div className="flex flex-wrap items-center justify-center gap-8 text-center">
-            <div className="flex items-center gap-2">
-              <Flame className="h-6 w-6 text-primary" />
-              <div>
-                <p className="text-2xl font-bold">0</p>
-                <p className="text-xs text-muted-foreground">Day Streak</p>
-              </div>
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* Primary CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+              <Button 
+                size="lg" 
+                onClick={() => handleStartDailyReview({ cardCount: 10, includeAudio: false })}
+                disabled={allVocabulary.length === 0}
+              >
+                Start Daily Review
+              </Button>
+              <Button 
+                variant="outline" 
+                size="lg"
+                onClick={() => {
+                  setSessionCards([...allVocabulary].sort(() => Math.random() - 0.5));
+                  setPracticeMode('free-practice');
+                }}
+                disabled={allVocabulary.length === 0}
+              >
+                <Layers className="h-4 w-4 mr-2" />
+                Start Free Practice
+              </Button>
             </div>
-            <div className="flex items-center gap-2">
-              <Trophy className="h-6 w-6 text-primary" />
-              <div>
-                <p className="text-2xl font-bold">0%</p>
-                <p className="text-xs text-muted-foreground">Mastered</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <Lock className="h-5 w-5 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                Sign in to save progress
-              </p>
+
+            {/* Daily Review Panel */}
+            <DailyReviewPanel 
+              dueCardsCount={dueCards.length}
+              onStart={handleStartDailyReview}
+            />
+
+            {/* Two-column layout for Free Practice and Quiz */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <FreePracticePanel
+                lessons={lessons}
+                hardCardsCount={hardCards.length}
+                totalCardsCount={allVocabulary.length}
+                onSelectDeck={handleStartFreePractice}
+              />
+              
+              <QuickQuizPanel
+                onStart={handleStartQuiz}
+                hasBeginnerContent={hasBeginnerContent}
+                hasIntermediateContent={hasIntermediateContent}
+              />
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Practice Options */}
-      <section className="py-12">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            {/* Flashcards */}
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setPracticeMode('flashcards')}>
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Layers className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Flashcards</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Review vocabulary with spaced repetition. Flip cards to test your memory.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    {allVocabulary.length} cards available
-                  </span>
-                  <Button>Start</Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quiz */}
-            <Card className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <Brain className="h-6 w-6 text-primary" />
-                </div>
-                <CardTitle>Quick Quiz</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground mb-4">
-                  Test your knowledge with multiple choice questions from all lessons.
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Mixed vocabulary
-                  </span>
-                  <Button variant="outline" asChild>
-                    <Link to="/lessons">Go to Lessons</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Daily Review Prompt */}
-          <Card className="max-w-3xl mx-auto mt-8 bg-secondary/30">
-            <CardContent className="p-6 text-center">
-              <RotateCcw className="h-8 w-8 mx-auto mb-3 text-primary" />
-              <h3 className="font-semibold mb-2">Daily Review</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Come back each day to review vocabulary using spaced repetition.
-                Consistent practice is the key to long-term retention.
-              </p>
-              <Badge variant="outline">
-                <Lock className="h-3 w-3 mr-1" />
-                Sign in to enable daily reminders
-              </Badge>
-            </CardContent>
-          </Card>
         </div>
       </section>
     </Layout>
