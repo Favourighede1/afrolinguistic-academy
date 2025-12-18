@@ -1,14 +1,17 @@
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Globe, ChevronDown, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, Globe, ChevronDown, User, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
 
 const navLinks = [
@@ -25,7 +28,23 @@ const navLinks = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { selectedLanguage, setSelectedLanguageId, availableLanguages } = useLanguage();
+  const { user, signOut } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSignIn = () => {
+    const returnTo = location.pathname !== '/login' ? location.pathname : '/practice';
+    navigate(`/login?returnTo=${encodeURIComponent(returnTo)}`);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const userInitials = user?.user_metadata?.full_name
+    ? user.user_metadata.full_name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+    : user?.email?.[0].toUpperCase() || 'U';
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -88,10 +107,37 @@ export function Header() {
           </DropdownMenu>
 
           {/* Auth Button - Desktop */}
-          <Button variant="ghost" size="sm" className="hidden sm:flex gap-2">
-            <User className="h-4 w-4" />
-            Sign In
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="hidden sm:flex gap-2 px-2">
+                  <Avatar className="h-7 w-7">
+                    <AvatarImage src={user.user_metadata?.avatar_url} />
+                    <AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline max-w-[100px] truncate">
+                    {user.user_metadata?.full_name || user.email}
+                  </span>
+                  <ChevronDown className="h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem disabled className="text-xs text-muted-foreground">
+                  {user.email}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="ghost" size="sm" className="hidden sm:flex gap-2" onClick={handleSignIn}>
+              <User className="h-4 w-4" />
+              Sign In
+            </Button>
+          )}
 
           {/* Mobile Menu Button */}
           <Button
@@ -125,10 +171,49 @@ export function Header() {
               </Link>
             ))}
             <div className="border-t border-border mt-2 pt-2">
-              <Button variant="ghost" size="sm" className="w-full justify-start gap-2">
-                <User className="h-4 w-4" />
-                Sign In
-              </Button>
+              {user ? (
+                <div className="space-y-2">
+                  <div className="px-4 py-2 flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.user_metadata?.avatar_url} />
+                      <AvatarFallback className="text-xs">{userInitials}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {user.user_metadata?.full_name || 'User'}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="w-full justify-start gap-2 text-destructive hover:text-destructive"
+                    onClick={() => {
+                      handleSignOut();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign out
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="w-full justify-start gap-2"
+                  onClick={() => {
+                    handleSignIn();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <User className="h-4 w-4" />
+                  Sign In
+                </Button>
+              )}
             </div>
           </nav>
         </div>

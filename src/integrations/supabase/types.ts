@@ -14,7 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      user_favorites: {
+        Row: {
+          created_at: string
+          entry_id: string
+          id: string
+          language_code: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_id: string
+          id?: string
+          language_code: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_id?: string
+          id?: string
+          language_code?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          id: string
+          language_code: string
+          lesson_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          language_code: string
+          lesson_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          language_code?: string
+          lesson_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          language_code: string
+          last_practice_date: string | null
+          streak_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          language_code: string
+          last_practice_date?: string | null
+          streak_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          language_code?: string
+          last_practice_date?: string | null
+          streak_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
