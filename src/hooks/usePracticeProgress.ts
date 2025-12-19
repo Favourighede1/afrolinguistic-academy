@@ -16,17 +16,20 @@ export interface PracticeStats {
   wordsMastered: number;
   totalReviews: number;
   cardProgress: Record<string, CardProgress>;
+  recentlyPracticed: string[]; // deck IDs
 }
 
 const STORAGE_KEY = 'afrolinguistic_practice_progress';
 const MASTERY_THRESHOLD = 3; // correct answers needed to "master" a card
+const MAX_RECENT_DECKS = 5;
 
 const getDefaultStats = (): PracticeStats => ({
   streak: 0,
   lastPracticeDate: null,
   wordsMastered: 0,
   totalReviews: 0,
-  cardProgress: {}
+  cardProgress: {},
+  recentlyPracticed: []
 });
 
 const calculateNextReview = (
@@ -49,7 +52,16 @@ export const usePracticeProgress = (languageId: string) => {
   const [stats, setStats] = useState<PracticeStats>(() => {
     if (typeof window === 'undefined') return getDefaultStats();
     const saved = localStorage.getItem(storageKey);
-    return saved ? JSON.parse(saved) : getDefaultStats();
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Ensure recentlyPracticed exists for backwards compatibility
+      return {
+        ...getDefaultStats(),
+        ...parsed,
+        recentlyPracticed: parsed.recentlyPracticed || []
+      };
+    }
+    return getDefaultStats();
   });
 
   useEffect(() => {
@@ -125,6 +137,16 @@ export const usePracticeProgress = (languageId: string) => {
     });
   }, []);
 
+  const recordDeckPracticed = useCallback((deckId: string) => {
+    setStats(prev => {
+      const filtered = prev.recentlyPracticed.filter(id => id !== deckId);
+      return {
+        ...prev,
+        recentlyPracticed: [deckId, ...filtered].slice(0, MAX_RECENT_DECKS)
+      };
+    });
+  }, []);
+
   const getDueCards = useCallback((allCardIds: string[]): string[] => {
     const today = new Date().toDateString();
     const todayTime = new Date(today).getTime();
@@ -158,6 +180,7 @@ export const usePracticeProgress = (languageId: string) => {
   return {
     stats,
     recordReview,
+    recordDeckPracticed,
     getDueCards,
     getHardCards,
     getCardStatus,

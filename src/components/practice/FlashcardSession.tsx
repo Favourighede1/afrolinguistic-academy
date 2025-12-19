@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
-import { ChevronLeft, Check, X, RotateCcw } from 'lucide-react';
+import { ChevronLeft, Check, X, RotateCcw, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { AudioButton } from '@/components/AudioButton';
 import { VocabularyItem } from '@/data/lessons';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface FlashcardSessionProps {
   cards: (VocabularyItem & { lessonTitle: string })[];
@@ -13,6 +14,7 @@ interface FlashcardSessionProps {
   onBack: () => void;
   onCardReview: (cardId: string, correct: boolean) => void;
   onComplete: (results: SessionResults) => void;
+  onReviewWrongCards?: (wrongCardIds: string[]) => void;
 }
 
 export interface SessionResults {
@@ -27,8 +29,10 @@ export const FlashcardSession = ({
   mode, 
   onBack, 
   onCardReview,
-  onComplete 
+  onComplete,
+  onReviewWrongCards
 }: FlashcardSessionProps) => {
+  const { user } = useAuth();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showAnswer, setShowAnswer] = useState(false);
   const [results, setResults] = useState<SessionResults>({
@@ -62,8 +66,31 @@ export const FlashcardSession = ({
     }
   }, [currentCard, currentIndex, cards.length, results, onCardReview, onComplete]);
 
+  const handleReviewWrongCards = () => {
+    const wrongCardIds = results.reviewedCards
+      .filter(r => !r.correct)
+      .map(r => r.cardId);
+    if (onReviewWrongCards && wrongCardIds.length > 0) {
+      onReviewWrongCards(wrongCardIds);
+    }
+  };
+
+  const handlePracticeAgain = () => {
+    setCurrentIndex(0);
+    setShowAnswer(false);
+    setIsComplete(false);
+    setResults({
+      totalCards: cards.length,
+      correctCount: 0,
+      incorrectCount: 0,
+      reviewedCards: []
+    });
+  };
+
   if (isComplete) {
     const accuracy = Math.round((results.correctCount / results.totalCards) * 100);
+    const wrongCards = results.reviewedCards.filter(r => !r.correct);
+    
     return (
       <div className="py-12">
         <div className="container max-w-2xl">
@@ -96,23 +123,23 @@ export const FlashcardSession = ({
                 <Button onClick={onBack}>
                   Back to Practice
                 </Button>
-                {results.incorrectCount > 0 && (
-                  <Button variant="outline" onClick={() => {
-                    setCurrentIndex(0);
-                    setShowAnswer(false);
-                    setIsComplete(false);
-                    setResults({
-                      totalCards: cards.length,
-                      correctCount: 0,
-                      incorrectCount: 0,
-                      reviewedCards: []
-                    });
-                  }}>
-                    <RotateCcw className="h-4 w-4 mr-2" />
-                    Practice Again
+                {wrongCards.length > 0 && onReviewWrongCards && (
+                  <Button variant="outline" onClick={handleReviewWrongCards}>
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    Review Wrong Cards ({wrongCards.length})
                   </Button>
                 )}
+                <Button variant="outline" onClick={handlePracticeAgain}>
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Practice Again
+                </Button>
               </div>
+
+              {!user && (
+                <p className="text-sm text-muted-foreground mt-8">
+                  Sign in to sync your progress across devices.
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -172,7 +199,7 @@ export const FlashcardSession = ({
                     <Button 
                       variant="outline" 
                       size="lg"
-                      className="border-red-200 hover:bg-red-50 hover:border-red-300"
+                      className="border-red-200 hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:hover:bg-red-950/20"
                       onClick={(e) => { e.stopPropagation(); handleAnswer(false); }}
                     >
                       <X className="h-5 w-5 mr-2 text-red-500" />
@@ -193,9 +220,11 @@ export const FlashcardSession = ({
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-muted-foreground mt-8">
-          Sign in to sync your progress across devices.
-        </p>
+        {!user && (
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            Sign in to sync your progress across devices.
+          </p>
+        )}
       </div>
     </div>
   );
