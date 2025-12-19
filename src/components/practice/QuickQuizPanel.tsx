@@ -60,23 +60,24 @@ export const QuickQuizPanel = ({
                 key={type.value}
                 variant={quizType === type.value ? 'default' : 'outline'}
                 className={cn(
-                  "h-auto py-2 px-3 justify-start",
+                  "h-auto py-2 px-3 justify-start overflow-hidden",
                   type.disabled && "opacity-60"
                 )}
                 disabled={type.disabled}
                 onClick={() => setQuizType(type.value as QuizType)}
+                title={`${type.label}: ${type.description}`}
               >
-                <div className="text-left">
+                <div className="text-left min-w-0 w-full">
                   <div className="flex items-center gap-1.5">
-                    {type.icon}
-                    <span className="font-medium">{type.label}</span>
+                    {type.icon && <span className="shrink-0">{type.icon}</span>}
+                    <span className="font-medium truncate">{type.label}</span>
                     {type.disabled && (
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 shrink-0">
                         Soon
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs opacity-70 font-normal">{type.description}</p>
+                  <p className="text-xs opacity-70 font-normal truncate">{type.description}</p>
                 </div>
               </Button>
             ))}
