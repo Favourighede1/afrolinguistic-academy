@@ -142,7 +142,7 @@ export const FreePracticePanel = ({
     <Button
       key={deck.id}
       variant="outline"
-      className="h-auto py-3 px-4 justify-start text-left"
+      className="h-auto py-3 px-4 justify-start text-left overflow-hidden"
       disabled={deck.disabled}
       onClick={() => {
         if (deck.requiresAuth && onSignInClick) {
@@ -151,13 +151,14 @@ export const FreePracticePanel = ({
           onSelectDeck(deck);
         }
       }}
+      title={deck.label}
     >
-      <div className="flex items-start gap-3 w-full">
-        <div className="mt-0.5 text-muted-foreground">
+      <div className="flex items-start gap-3 w-full min-w-0">
+        <div className="mt-0.5 text-muted-foreground shrink-0">
           {getIcon(deck.type, deck.requiresAuth)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm">{deck.label}</p>
+          <p className="font-medium text-sm truncate">{deck.label}</p>
           {deck.description && (
             <p className="text-xs text-muted-foreground line-clamp-2">{deck.description}</p>
           )}
@@ -194,11 +195,12 @@ export const FreePracticePanel = ({
                   key={`recent-${deck.id}`}
                   variant="secondary"
                   size="sm"
-                  className="h-auto py-1.5"
+                  className="h-auto py-1.5 max-w-[200px]"
                   onClick={() => onSelectDeck(deck)}
+                  title={deck.label}
                 >
-                  {getIcon(deck.type)}
-                  <span className="ml-1.5">{deck.label}</span>
+                  <span className="shrink-0">{getIcon(deck.type)}</span>
+                  <span className="ml-1.5 truncate">{deck.label}</span>
                 </Button>
               ))}
             </div>
