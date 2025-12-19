@@ -5,14 +5,26 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { QuizQuestion, VocabularyItem, Lesson } from '@/data/lessons';
+import { Lesson } from '@/data/lessons';
 import { QuizType, QuizDifficulty } from './QuickQuizPanel';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface QuizSessionProps {
   lessons: Lesson[];
   quizType: QuizType;
   difficulty: QuizDifficulty;
+  questionCount: number;
   onBack: () => void;
+  onPracticeMissed?: (missedWords: string[]) => void;
+}
+
+interface QuizQuestion {
+  id: string;
+  type: 'multiple-choice' | 'typing';
+  question: string;
+  options?: string[];
+  correctAnswer: string;
+  word?: string;
 }
 
 interface QuizResult {
@@ -20,17 +32,28 @@ interface QuizResult {
   userAnswer: string;
   correctAnswer: string;
   isCorrect: boolean;
+  word?: string;
 }
 
-export const QuizSession = ({ lessons, quizType, difficulty, onBack }: QuizSessionProps) => {
+export const QuizSession = ({ 
+  lessons, 
+  quizType, 
+  difficulty, 
+  questionCount,
+  onBack,
+  onPracticeMissed
+}: QuizSessionProps) => {
+  const { user } = useAuth();
   const filteredLessons = lessons.filter(l => l.level === difficulty);
   
   // Generate quiz questions based on type
-  const questions = useMemo(() => {
+  const questions = useMemo<QuizQuestion[]>(() => {
     const allVocab = filteredLessons.flatMap(l => l.vocabulary);
+    const shuffled = [...allVocab].sort(() => Math.random() - 0.5);
+    const selectedVocab = shuffled.slice(0, questionCount);
     
     if (quizType === 'vocabulary') {
-      return allVocab.slice(0, 10).map((v, idx) => {
+      return selectedVocab.map((v, idx) => {
         const wrongOptions = allVocab
           .filter(item => item.id !== v.id)
           .sort(() => Math.random() - 0.5)
@@ -44,19 +67,21 @@ export const QuizSession = ({ lessons, quizType, difficulty, onBack }: QuizSessi
           type: 'multiple-choice' as const,
           question: `What does "${v.word}" mean?`,
           options,
-          correctAnswer: v.translation
+          correctAnswer: v.translation,
+          word: v.word
         };
       });
     } else {
       // Translation type - typing answers
-      return allVocab.slice(0, 10).map((v, idx) => ({
+      return selectedVocab.map((v, idx) => ({
         id: `q-${idx}`,
         type: 'typing' as const,
         question: `Type the word for "${v.translation}"`,
-        correctAnswer: v.word
+        correctAnswer: v.word,
+        word: v.word
       }));
     }
-  }, [filteredLessons, quizType]);
+  }, [filteredLessons, quizType, questionCount]);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
@@ -76,7 +101,8 @@ export const QuizSession = ({ lessons, quizType, difficulty, onBack }: QuizSessi
       question: currentQuestion.question,
       userAnswer,
       correctAnswer: currentQuestion.correctAnswer,
-      isCorrect
+      isCorrect,
+      word: currentQuestion.word
     }]);
     setShowResult(true);
   }, [currentQuestion, typedAnswer, selectedAnswer]);
@@ -101,9 +127,13 @@ export const QuizSession = ({ lessons, quizType, difficulty, onBack }: QuizSessi
     setIsComplete(false);
   };
 
-  const practiceWrongAnswers = () => {
-    // For now, just restart
-    restartQuiz();
+  const handlePracticeMissed = () => {
+    const missedWords = results
+      .filter(r => !r.isCorrect && r.word)
+      .map(r => r.word!);
+    if (onPracticeMissed && missedWords.length > 0) {
+      onPracticeMissed(missedWords);
+    }
   };
 
   if (questions.length === 0) {
@@ -147,7 +177,7 @@ export const QuizSession = ({ lessons, quizType, difficulty, onBack }: QuizSessi
 
               {wrongAnswers.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="font-semibold mb-3">Review Wrong Answers:</h3>
+                  <h3 className="font-semibold mb-3">Review Missed Items:</h3>
                   <div className="space-y-2">
                     {wrongAnswers.map((result, idx) => (
                       <div key={idx} className="p-3 bg-red-50 dark:bg-red-950/20 rounded-lg text-sm">
@@ -162,16 +192,23 @@ export const QuizSession = ({ lessons, quizType, difficulty, onBack }: QuizSessi
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button onClick={onBack}>Back to Practice</Button>
+                {wrongAnswers.length > 0 && onPracticeMissed && (
+                  <Button variant="outline" onClick={handlePracticeMissed}>
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    Practice Missed ({wrongAnswers.length})
+                  </Button>
+                )}
                 <Button variant="outline" onClick={restartQuiz}>
                   <RotateCcw className="h-4 w-4 mr-2" />
                   Retry Quiz
                 </Button>
-                {wrongAnswers.length > 0 && (
-                  <Button variant="outline" onClick={practiceWrongAnswers}>
-                    Practice Wrong Answers
-                  </Button>
-                )}
               </div>
+
+              {!user && (
+                <p className="text-sm text-muted-foreground text-center mt-8">
+                  Sign in to sync your progress across devices.
+                </p>
+              )}
             </CardContent>
           </Card>
         </div>

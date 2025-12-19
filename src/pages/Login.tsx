@@ -8,7 +8,7 @@ import { AlertCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function Login() {
-  const { user } = useAuth();
+  const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -19,11 +19,29 @@ export default function Login() {
   // Debug info (only in development)
   const isDev = import.meta.env.DEV;
 
-  useEffect(() => {
-    if (user) {
-      navigate(returnTo, { replace: true });
-    }
-  }, [user, navigate, returnTo]);
+  // If already logged in, show message briefly then redirect
+  if (user && !loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-xl">You're already signed in</CardTitle>
+            <CardDescription>
+              Signed in as {user.email}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-3">
+            <Button onClick={() => navigate(returnTo, { replace: true })}>
+              Continue to {returnTo === '/practice' ? 'Practice' : 'App'}
+            </Button>
+            <Button variant="outline" onClick={() => signOut()}>
+              Sign out
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   const handleGoogleSignIn = async () => {
     setError(null);

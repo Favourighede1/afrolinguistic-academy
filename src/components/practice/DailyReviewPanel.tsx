@@ -1,26 +1,22 @@
 import { useState } from 'react';
-import { RotateCcw, Clock, Settings2 } from 'lucide-react';
+import { RotateCcw, Clock, Settings2, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface DailyReviewPanelProps {
   dueCardsCount: number;
   onStart: (settings: { cardCount: number; includeAudio: boolean }) => void;
 }
 
+const CARD_COUNT_OPTIONS = [10, 20, 30] as const;
+
 export const DailyReviewPanel = ({ dueCardsCount, onStart }: DailyReviewPanelProps) => {
   const [showSettings, setShowSettings] = useState(false);
-  const [cardCount, setCardCount] = useState(10);
+  const [cardCount, setCardCount] = useState<number>(10);
   const [includeAudio, setIncludeAudio] = useState(false);
 
   const estimatedMinutes = Math.ceil(Math.min(dueCardsCount, cardCount) * 0.5);
@@ -73,31 +69,42 @@ export const DailyReviewPanel = ({ dueCardsCount, onStart }: DailyReviewPanelPro
 
         {showSettings && (
           <div className="mt-6 pt-6 border-t border-border">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md">
+            <div className="space-y-4 max-w-md">
+              {/* Cards per session with preset buttons */}
               <div className="space-y-2">
-                <Label htmlFor="card-count">Cards per session</Label>
-                <Select value={cardCount.toString()} onValueChange={(v) => setCardCount(parseInt(v))}>
-                  <SelectTrigger id="card-count">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10 cards</SelectItem>
-                    <SelectItem value="20">20 cards</SelectItem>
-                    <SelectItem value="30">30 cards</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label>Cards per session</Label>
+                <div className="flex gap-2">
+                  {CARD_COUNT_OPTIONS.map((count) => (
+                    <Button
+                      key={count}
+                      variant={cardCount === count ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setCardCount(count)}
+                      className="flex-1"
+                    >
+                      {count}
+                    </Button>
+                  ))}
+                </div>
               </div>
+              
+              {/* Include audio toggle */}
               <div className="space-y-2">
-                <Label htmlFor="include-audio">Include audio</Label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="include-audio" className="flex items-center gap-2">
+                    <Volume2 className="h-4 w-4" />
+                    Include audio
+                  </Label>
                   <Switch 
                     id="include-audio" 
                     checked={includeAudio} 
                     onCheckedChange={setIncludeAudio}
                     disabled
                   />
-                  <span className="text-xs text-muted-foreground">Coming soon</span>
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Audio coming soon. We're recording native pronunciations.
+                </p>
               </div>
             </div>
           </div>

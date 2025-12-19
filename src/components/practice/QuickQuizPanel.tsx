@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Brain, Volume2 } from 'lucide-react';
+import { Brain, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,15 +11,18 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 export type QuizType = 'vocabulary' | 'translation' | 'listening';
 export type QuizDifficulty = 'beginner' | 'intermediate';
 
 interface QuickQuizPanelProps {
-  onStart: (settings: { quizType: QuizType; difficulty: QuizDifficulty }) => void;
+  onStart: (settings: { quizType: QuizType; difficulty: QuizDifficulty; questionCount: number }) => void;
   hasBeginnerContent: boolean;
   hasIntermediateContent: boolean;
 }
+
+const QUESTION_COUNT_OPTIONS = [5, 10, 20] as const;
 
 export const QuickQuizPanel = ({ 
   onStart, 
@@ -28,11 +31,12 @@ export const QuickQuizPanel = ({
 }: QuickQuizPanelProps) => {
   const [quizType, setQuizType] = useState<QuizType>('vocabulary');
   const [difficulty, setDifficulty] = useState<QuizDifficulty>('beginner');
+  const [questionCount, setQuestionCount] = useState<number>(10);
 
   const quizTypes = [
-    { value: 'vocabulary', label: 'Vocabulary', description: 'Match words with meanings', disabled: false },
-    { value: 'translation', label: 'Translation', description: 'Translate sentences', disabled: false },
-    { value: 'listening', label: 'Listening', description: 'Identify spoken words', disabled: true }
+    { value: 'vocabulary', label: 'Vocabulary', description: 'Match words with meanings', disabled: false, icon: null },
+    { value: 'translation', label: 'Translation', description: 'Translate sentences', disabled: false, icon: null },
+    { value: 'listening', label: 'Listening', description: 'Identify spoken words', disabled: true, icon: <Headphones className="h-3 w-3" /> }
   ];
 
   return (
@@ -47,6 +51,7 @@ export const QuickQuizPanel = ({
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Quiz Type */}
         <div className="space-y-2">
           <Label>Quiz Type</Label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -54,15 +59,19 @@ export const QuickQuizPanel = ({
               <Button
                 key={type.value}
                 variant={quizType === type.value ? 'default' : 'outline'}
-                className="h-auto py-2 px-3 justify-start"
+                className={cn(
+                  "h-auto py-2 px-3 justify-start",
+                  type.disabled && "opacity-60"
+                )}
                 disabled={type.disabled}
                 onClick={() => setQuizType(type.value as QuizType)}
               >
                 <div className="text-left">
                   <div className="flex items-center gap-1.5">
+                    {type.icon}
                     <span className="font-medium">{type.label}</span>
                     {type.disabled && (
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
+                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 ml-1">
                         Soon
                       </Badge>
                     )}
@@ -74,6 +83,25 @@ export const QuickQuizPanel = ({
           </div>
         </div>
 
+        {/* Question Count */}
+        <div className="space-y-2">
+          <Label>Question Count</Label>
+          <div className="flex gap-2">
+            {QUESTION_COUNT_OPTIONS.map((count) => (
+              <Button
+                key={count}
+                variant={questionCount === count ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setQuestionCount(count)}
+                className="flex-1"
+              >
+                {count}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Difficulty */}
         <div className="space-y-2">
           <Label htmlFor="difficulty">Difficulty</Label>
           <Select 
@@ -96,7 +124,7 @@ export const QuickQuizPanel = ({
 
         <Button 
           className="w-full sm:w-auto"
-          onClick={() => onStart({ quizType, difficulty })}
+          onClick={() => onStart({ quizType, difficulty, questionCount })}
         >
           Start Quiz
         </Button>
