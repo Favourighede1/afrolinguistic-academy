@@ -1,1 +1,10 @@
 project_id = "gtagjahymvdtpxkhiqce"
+
+[functions.send-contact]
+verify_jwt = false
+
+[functions.send-lesson-request]
+verify_jwt = false
+
+[functions.send-newsletter]
+verify_jwt = false
