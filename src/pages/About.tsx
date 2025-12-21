@@ -130,8 +130,8 @@ export default function About() {
               </p>
               <p className="mb-4">
                 Afrolinguistic Academy was founded to change that. We believe that language is the key to 
-                understanding culture, and that everyone—whether connecting with heritage, preparing for 
-                travel, or simply curious—deserves high-quality learning materials.
+                understanding culture, and that everyone whether connecting with heritage, preparing for 
+                travel, or simply curious deserves high-quality learning materials.
               </p>
               <p>
                 Starting with Edo, we're building a comprehensive platform that will eventually cover 
