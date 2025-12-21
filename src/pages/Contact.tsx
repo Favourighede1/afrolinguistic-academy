@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/select';
 import { Layout } from '@/components/layout/Layout';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Contact() {
   const { toast } = useToast();
@@ -25,6 +26,7 @@ export default function Contact() {
     subject: '',
     message: ''
   });
+  const [contactHoneypot, setContactHoneypot] = useState('');
   const [isSubmittingContact, setIsSubmittingContact] = useState(false);
 
   // Lesson Request Form
@@ -35,46 +37,132 @@ export default function Contact() {
     language: '',
     details: ''
   });
+  const [lessonHoneypot, setLessonHoneypot] = useState('');
   const [isSubmittingLesson, setIsSubmittingLesson] = useState(false);
 
   // Newsletter Form
   const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterHoneypot, setNewsletterHoneypot] = useState('');
   const [isSubmittingNewsletter, setIsSubmittingNewsletter] = useState(false);
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingContact(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmittingContact(false);
-    setContactForm({ name: '', email: '', subject: '', message: '' });
-    toast({
-      title: "Message Sent",
-      description: "Thank you for reaching out. We'll get back to you soon.",
-    });
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact', {
+        body: {
+          ...contactForm,
+          honeypot: contactHoneypot,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          title: "Error",
+          description: data.error,
+          variant: "destructive",
+        });
+      } else {
+        setContactForm({ name: '', email: '', subject: '', message: '' });
+        setContactHoneypot('');
+        toast({
+          title: "Message Sent",
+          description: "Thank you for reaching out. We'll get back to you soon.",
+        });
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingContact(false);
+    }
   };
 
   const handleLessonSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingLesson(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmittingLesson(false);
-    setLessonForm({ name: '', email: '', topic: '', language: '', details: '' });
-    toast({
-      title: "Request Submitted",
-      description: "Thank you for your lesson topic suggestion!",
-    });
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('send-lesson-request', {
+        body: {
+          ...lessonForm,
+          honeypot: lessonHoneypot,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          title: "Error",
+          description: data.error,
+          variant: "destructive",
+        });
+      } else {
+        setLessonForm({ name: '', email: '', topic: '', language: '', details: '' });
+        setLessonHoneypot('');
+        toast({
+          title: "Request Submitted",
+          description: "Thank you for your lesson topic suggestion!",
+        });
+      }
+    } catch (error) {
+      console.error('Lesson request error:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingLesson(false);
+    }
   };
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmittingNewsletter(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmittingNewsletter(false);
-    setNewsletterEmail('');
-    toast({
-      title: "Subscribed!",
-      description: "You'll receive updates about new lessons and features.",
-    });
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('send-newsletter', {
+        body: {
+          email: newsletterEmail,
+          honeypot: newsletterHoneypot,
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast({
+          title: "Error",
+          description: data.error,
+          variant: "destructive",
+        });
+      } else {
+        setNewsletterEmail('');
+        setNewsletterHoneypot('');
+        toast({
+          title: "Subscribed!",
+          description: "You'll receive updates about new lessons and features.",
+        });
+      }
+    } catch (error) {
+      console.error('Newsletter error:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingNewsletter(false);
+    }
   };
 
   return (
@@ -107,6 +195,17 @@ export default function Contact() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleContactSubmit} className="space-y-4">
+                  {/* Honeypot field - hidden from users */}
+                  <input
+                    type="text"
+                    name="website"
+                    value={contactHoneypot}
+                    onChange={(e) => setContactHoneypot(e.target.value)}
+                    className="absolute -left-[9999px] opacity-0 pointer-events-none"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="contact-name">Name</Label>
@@ -169,6 +268,17 @@ export default function Contact() {
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleLessonSubmit} className="space-y-4">
+                  {/* Honeypot field */}
+                  <input
+                    type="text"
+                    name="company"
+                    value={lessonHoneypot}
+                    onChange={(e) => setLessonHoneypot(e.target.value)}
+                    className="absolute -left-[9999px] opacity-0 pointer-events-none"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    aria-hidden="true"
+                  />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="lesson-name">Name</Label>
@@ -247,6 +357,17 @@ export default function Contact() {
                 Get notified when we add new lessons, languages, and features.
               </p>
               <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                {/* Honeypot field */}
+                <input
+                  type="text"
+                  name="phone"
+                  value={newsletterHoneypot}
+                  onChange={(e) => setNewsletterHoneypot(e.target.value)}
+                  className="absolute -left-[9999px] opacity-0 pointer-events-none"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  aria-hidden="true"
+                />
                 <Input
                   type="email"
                   placeholder="Enter your email"
