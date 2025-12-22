@@ -1,100 +1,122 @@
-import { Link } from 'react-router-dom';
-import { Clock, Tag } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useState, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getCulturePostsByLanguage } from '@/data/culture';
+import { CultureFilters } from '@/components/culture/CultureFilters';
+import { CultureArticleCard } from '@/components/culture/CultureArticleCard';
+import { ComingSoonLanguages } from '@/components/culture/ComingSoonLanguages';
+import { Badge } from '@/components/ui/badge';
 
 export default function Culture() {
   const { selectedLanguage } = useLanguage();
   const posts = getCulturePostsByLanguage(selectedLanguage.id);
+  
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
 
-  const categories = [...new Set(posts.map(p => p.category))];
+  const categories = useMemo(() => 
+    [...new Set(posts.map(p => p.category))],
+    [posts]
+  );
+
+  const filteredPosts = useMemo(() => {
+    return posts.filter(post => {
+      // Category filter
+      if (selectedCategory !== 'All' && post.category !== selectedCategory) {
+        return false;
+      }
+
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesTitle = post.title.toLowerCase().includes(query);
+        const matchesTags = post.tags.some(tag => tag.toLowerCase().includes(query));
+        const matchesContent = post.content.toLowerCase().includes(query);
+        const matchesExcerpt = post.excerpt.toLowerCase().includes(query);
+        
+        return matchesTitle || matchesTags || matchesContent || matchesExcerpt;
+      }
+
+      return true;
+    });
+  }, [posts, selectedCategory, searchQuery]);
 
   return (
     <Layout>
+      <Helmet>
+        <title>{selectedLanguage.name} Culture | Afrolinguistic Academy</title>
+        <meta 
+          name="description" 
+          content={`Explore ${selectedLanguage.name} culture, history, traditions, and food. Learn real-life vocabulary and phrases used by ${selectedLanguage.name} speakers.`} 
+        />
+      </Helmet>
+
       {/* Header */}
       <section className="py-12 md:py-16 bg-gradient-to-br from-primary/5 via-background to-accent/10">
         <div className="container">
           <div className="max-w-3xl mx-auto text-center">
+            <Badge variant="outline" className="mb-4">
+              Language: {selectedLanguage.name}
+            </Badge>
             <h1 className="text-4xl md:text-5xl font-bold font-serif text-foreground mb-4">
               {selectedLanguage.name} Culture
             </h1>
-            <p className="text-lg text-muted-foreground">
+            <p className="text-lg text-muted-foreground mb-2">
               Explore the history, traditions, and stories behind the language.
               Understanding culture enriches your learning journey.
+            </p>
+            <p className="text-sm text-primary font-medium">
+              Use these articles to learn real-life vocabulary, names, and phrases used by {selectedLanguage.name} speakers.
             </p>
           </div>
         </div>
       </section>
 
-      {/* Categories */}
-      {categories.length > 0 && (
-        <section className="py-4 border-b border-border bg-card">
-          <div className="container">
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <Badge key={cat} variant="secondary">
-                  {cat}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Filters */}
+      <section className="py-6 border-b border-border bg-card">
+        <div className="container">
+          <CultureFilters
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            categories={categories}
+          />
+        </div>
+      </section>
 
       {/* Articles Grid */}
       <section className="py-12">
         <div className="container">
-          {posts.length > 0 ? (
+          {/* Results count */}
+          <p className="text-sm text-muted-foreground mb-6">
+            {filteredPosts.length} {filteredPosts.length === 1 ? 'article' : 'articles'} found
+            {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+            {searchQuery && ` for "${searchQuery}"`}
+          </p>
+
+          {filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {posts.map((post) => (
-                <Link key={post.id} to={`/culture/${post.slug}`}>
-                  <Card className="h-full hover:shadow-md transition-shadow cursor-pointer group overflow-hidden">
-                    {/* Placeholder Image */}
-                    <div className="aspect-video bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                      <span className="text-4xl opacity-50">📖</span>
-                    </div>
-                    <CardHeader className="pb-2">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
-                          {post.category}
-                        </Badge>
-                        <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {post.readingMinutes} min read
-                        </span>
-                      </div>
-                      <CardTitle className="text-lg group-hover:text-primary transition-colors">
-                        {post.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-0">
-                      <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                        {post.excerpt}
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {post.tags.slice(0, 3).map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+              {filteredPosts.map((post) => (
+                <CultureArticleCard key={post.id} post={post} />
               ))}
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">
-                Culture articles for {selectedLanguage.name} are coming soon.
+              <p className="text-muted-foreground mb-2">
+                No articles match your search.
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Try a different search term or category filter.
               </p>
             </div>
           )}
         </div>
       </section>
+
+      {/* Coming Soon Languages */}
+      <ComingSoonLanguages />
     </Layout>
   );
 }
