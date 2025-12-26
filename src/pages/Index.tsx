@@ -30,7 +30,7 @@ const features = [
   {
     icon: BookOpen,
     title: 'Bite-Size Lessons',
-    description: 'Learn in 15-minuthkjhkjhlkjhjlhjle sessions that fit your busy schedule.'
+    description: 'Learn in 15-minute sessions that fit your busy schedule.'
   },
   {
     icon: Headphones,
