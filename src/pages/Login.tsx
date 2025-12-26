@@ -183,15 +183,15 @@ export default function Login() {
                 <p className="font-medium mb-1">2. Google Cloud Console setup:</p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-1">
                   <li>Create OAuth 2.0 credentials</li>
-                  <li>Add Authorized JavaScript origins: <code className="bg-muted px-1 rounded">https://afrolinguistic-academy.lovable.app</code></li>
+                  <li>Add Authorized JavaScript origins: <code className="bg-muted px-1 rounded">https://afrolinguistic-academy.netlify.app</code></li>
                   <li>Add Authorized redirect URI: <code className="bg-muted px-1 rounded">https://gtagjahymvdtpxkhiqce.supabase.co/auth/v1/callback</code></li>
                 </ul>
               </div>
               <div>
                 <p className="font-medium mb-1">3. Lovable Cloud redirect URLs:</p>
                 <ul className="list-disc list-inside text-muted-foreground space-y-1">
-                  <li>Site URL: <code className="bg-muted px-1 rounded">https://afrolinguistic-academy.lovable.app</code></li>
-                  <li>Redirect URLs should include: <code className="bg-muted px-1 rounded">https://afrolinguistic-academy.lovable.app/**</code></li>
+                  <li>Site URL: <code className="bg-muted px-1 rounded">https://afrolinguistic-academy.netlify.app/</code></li>
+                  <li>Redirect URLs should include: <code className="bg-muted px-1 rounded">https://afrolinguistic-academy.netlify.app/**</code></li>
                 </ul>
               </div>
             </CardContent>
