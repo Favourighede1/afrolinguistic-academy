@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      edo_names: {
+        Row: {
+          created_at: string
+          gender: string
+          id: string
+          meaning: string
+          name: string
+          notes: string | null
+        }
+        Insert: {
+          created_at?: string
+          gender: string
+          id?: string
+          meaning: string
+          name: string
+          notes?: string | null
+        }
+        Update: {
+          created_at?: string
+          gender?: string
+          id?: string
+          meaning?: string
+          name?: string
+          notes?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
