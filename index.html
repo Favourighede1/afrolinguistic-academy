@@ -49,6 +49,15 @@
     </script>
   </head>
   <body>
+    <script>
+      // Prevent flash of wrong theme - runs before React loads
+      (function() {
+        const theme = localStorage.getItem('theme');
+        const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const resolved = theme === 'dark' || (theme !== 'light' && systemDark) ? 'dark' : 'light';
+        document.documentElement.classList.add(resolved);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
