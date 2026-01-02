@@ -1,5 +1,8 @@
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 interface NameItem {
   name: string;
@@ -31,7 +34,7 @@ export function NamesTable({ maleNames, femaleNames }: NamesTableProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {maleNames.map((item, idx) => (
+            {maleNames.slice(0, 4).map((item, idx) => (
               <div key={idx} className="flex justify-between items-start py-2 border-b border-border/50 last:border-0">
                 <span className="font-semibold text-foreground">{item.name}</span>
                 <span className="text-sm text-muted-foreground text-right max-w-[60%]">{item.meaning}</span>
@@ -48,7 +51,7 @@ export function NamesTable({ maleNames, femaleNames }: NamesTableProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            {femaleNames.map((item, idx) => (
+            {femaleNames.slice(0, 4).map((item, idx) => (
               <div key={idx} className="flex justify-between items-start py-2 border-b border-border/50 last:border-0">
                 <span className="font-semibold text-foreground">{item.name}</span>
                 <span className="text-sm text-muted-foreground text-right max-w-[60%]">{item.meaning}</span>
@@ -56,6 +59,22 @@ export function NamesTable({ maleNames, femaleNames }: NamesTableProps) {
             ))}
           </CardContent>
         </Card>
+      </div>
+
+      {/* Link to full directory */}
+      <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 text-center">
+        <h4 className="font-semibold text-foreground mb-2">
+          Explore 700+ Edo Names
+        </h4>
+        <p className="text-sm text-muted-foreground mb-4">
+          Browse our complete directory with search, filters, and save your favorites.
+        </p>
+        <Button asChild>
+          <Link to="/culture/edo-names">
+            View Full Directory
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+        </Button>
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ import Practice from "./pages/Practice";
 import Dictionary from "./pages/Dictionary";
 import Culture from "./pages/Culture";
 import CultureArticle from "./pages/CultureArticle";
+import EdoNames from "./pages/EdoNames";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/dictionary" element={<Dictionary />} />
                 <Route path="/culture" element={<Culture />} />
                 <Route path="/culture/:slug" element={<CultureArticle />} />
+                <Route path="/culture/edo-names" element={<EdoNames />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
