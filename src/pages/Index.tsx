@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
 import { 
   BookOpen, 
   Headphones, 
@@ -7,13 +6,10 @@ import {
   Brain, 
   Trophy,
   ArrowRight,
-  Mail,
-  CheckCircle,
   ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Accordion,
   AccordionContent,
@@ -22,9 +18,11 @@ import {
 } from '@/components/ui/accordion';
 import { Layout } from '@/components/layout/Layout';
 import { LessonCard } from '@/components/LessonCard';
+import { SubscribeForm } from '@/components/SubscribeForm';
+import { ContinueLearning } from '@/components/ContinueLearning';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getLessonsByLanguage } from '@/data/lessons';
-import { useToast } from '@/hooks/use-toast';
+import { useLessonProgress } from '@/hooks/useLessonProgress';
 
 const features = [
   {
@@ -34,8 +32,8 @@ const features = [
   },
   {
     icon: Headphones,
-    title: 'Audio-First Learning',
-    description: 'Hear native pronunciation for every word and phrase.'
+    title: 'Native Audio (Coming Soon)',
+    description: 'Native speaker pronunciation for vocabulary—currently in development.'
   },
   {
     icon: Layers,
@@ -99,48 +97,42 @@ export default function Index() {
   const { selectedLanguage } = useLanguage();
   const lessons = getLessonsByLanguage(selectedLanguage.id);
   const sampleLesson = lessons[0];
-  const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-
-  const handleEmailSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email.trim()) return;
-    
-    setIsSubmitting(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
-    setEmail('');
-    toast({
-      title: "You're on the list!",
-      description: "Check your email for your free phrasebook PDF.",
-    });
-  };
+  const { getInProgressCount, getCompletedCount } = useLessonProgress();
+  const hasStartedLearning = getInProgressCount() > 0 || getCompletedCount() > 0;
 
   return (
     <Layout>
+      {/* Continue Learning Banner (for returning users) */}
+      {hasStartedLearning && (
+        <section className="py-4 bg-card border-b border-border">
+          <div className="container">
+            <ContinueLearning variant="banner" />
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/10">
         <div className="container py-16 md:py-24">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif text-foreground mb-6">
-              Learn African Languages with Audio-First Lessons
+              Learn African Languages for Free
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Start speaking {selectedLanguage.name} today. Free lessons, native pronunciation, 
-              and cultural context—no account required.
+              Start speaking {selectedLanguage.name} today. Structured lessons, cultural context, 
+              and native audio coming soon—no account required.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="gap-2">
-                <Link to="/lessons">
-                  Start the First Lesson
+                <Link to="/lessons/edo-greetings">
+                  Start Lesson 1
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild>
+              <Button size="lg" variant="outline" asChild className="gap-2 relative">
                 <Link to="/start-here">
-                  Take a Placement Quiz
+                  Take Placement Quiz
+                  <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded ml-1">Soon</span>
                 </Link>
               </Button>
             </div>
@@ -219,33 +211,7 @@ export default function Index() {
       {/* Email Capture */}
       <section className="py-16 md:py-20">
         <div className="container">
-          <Card className="max-w-2xl mx-auto bg-primary/5 border-primary/20">
-            <CardContent className="p-8 text-center">
-              <Mail className="h-12 w-12 mx-auto mb-4 text-primary" />
-              <h2 className="text-2xl font-bold font-serif mb-2">
-                Get a Free {selectedLanguage.name} Phrasebook
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                Essential phrases for greetings, travel, and everyday conversations—delivered to your inbox.
-              </p>
-              <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Sending...' : 'Get Free PDF'}
-                </Button>
-              </form>
-              <p className="text-xs text-muted-foreground mt-4">
-                No spam. Unsubscribe anytime.
-              </p>
-            </CardContent>
-          </Card>
+          <SubscribeForm className="max-w-2xl mx-auto" />
         </div>
       </section>
 

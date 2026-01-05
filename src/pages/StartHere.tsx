@@ -107,10 +107,14 @@ export default function StartHere() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="gap-2">
-                <Link to="/lessons">
-                  Go to First Lesson
+                <Link to="/lessons/edo-greetings">
+                  Start Lesson 1
                   <ArrowRight className="h-4 w-4" />
                 </Link>
+              </Button>
+              <Button size="lg" variant="outline" disabled className="gap-2 cursor-not-allowed">
+                Take Placement Quiz
+                <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded ml-1">Coming Soon</span>
               </Button>
             </div>
           </div>
@@ -221,13 +225,23 @@ export default function StartHere() {
                 Not Sure Where to Start?
               </h2>
               <p className="text-muted-foreground mb-6">
-                Take our quick placement quiz to find lessons matched to your current level.
+                Our placement quiz will help you find lessons matched to your level. 
+                For now, we recommend starting with Lesson 1.
               </p>
-              <Button size="lg" variant="outline">
-                Take Placement Quiz
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button size="lg" asChild className="gap-2">
+                  <Link to="/lessons/edo-greetings">
+                    Start Lesson 1
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" disabled className="gap-2 cursor-not-allowed">
+                  Placement Quiz
+                  <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded ml-1">Soon</span>
+                </Button>
+              </div>
               <p className="text-xs text-muted-foreground mt-4">
-                Takes about 5 minutes • No account required
+                Placement quiz coming soon • No account required
               </p>
             </CardContent>
           </Card>
