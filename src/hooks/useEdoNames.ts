@@ -24,7 +24,8 @@ export function useEdoNames() {
         const { data, error: fetchError } = await supabase
           .from('edo_names')
           .select('*')
-          .order('name', { ascending: true });
+          .order('name', { ascending: true })
+          .range(0, 2999);
 
         if (fetchError) {
           throw fetchError;
