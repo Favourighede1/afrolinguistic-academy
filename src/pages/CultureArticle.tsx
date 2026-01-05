@@ -1,10 +1,11 @@
 import { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { ArrowLeft, Clock, Calendar, Tag } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, Tag, BookOpen, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Layout } from '@/components/layout/Layout';
+import { NextStepPanel } from '@/components/NextStepPanel';
 import { getCulturePostBySlug } from '@/data/culture';
 import { ArticleVocabulary } from '@/components/culture/ArticleVocabulary';
 import { ArticleTableOfContents } from '@/components/culture/ArticleTableOfContents';
@@ -274,6 +275,27 @@ export default function CultureArticle() {
                   </Badge>
                 ))}
               </div>
+            </div>
+
+            {/* Next Steps Panel */}
+            <div className="mt-8">
+              <NextStepPanel
+                title="Continue Learning"
+                description="Study the vocabulary from this article or explore more."
+                actions={[
+                  {
+                    label: 'Search in Dictionary',
+                    href: '/dictionary',
+                    icon: Search
+                  },
+                  {
+                    label: 'Start a Lesson',
+                    href: '/lessons',
+                    icon: BookOpen,
+                    variant: 'outline'
+                  }
+                ]}
+              />
             </div>
           </div>
         </div>

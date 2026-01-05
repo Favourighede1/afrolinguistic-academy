@@ -1,8 +1,9 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Globe } from 'lucide-react';
+import { Globe, RefreshCw, Brain } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Layout } from '@/components/layout/Layout';
+import { NextStepPanel } from '@/components/NextStepPanel';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllDictionaryEntries, DictionaryEntry } from '@/data/dictionary';
@@ -214,6 +215,28 @@ export default function Dictionary() {
             <DictionaryEmptyState
               searchQuery={searchQuery}
               onClearSearch={clearFilters}
+            />
+          )}
+
+          {/* Next Steps Panel */}
+          {filteredEntries.length > 0 && (
+            <NextStepPanel
+              className="mt-8"
+              title="Practice These Words"
+              description="Turn dictionary lookups into lasting knowledge."
+              actions={[
+                {
+                  label: 'Review with Flashcards',
+                  href: '/practice',
+                  icon: RefreshCw
+                },
+                {
+                  label: 'Take a Quiz',
+                  href: '/practice',
+                  icon: Brain,
+                  variant: 'outline'
+                }
+              ]}
             />
           )}
         </div>

@@ -9,7 +9,9 @@ import {
   HelpCircle,
   Plus,
   Check,
-  X
+  X,
+  RefreshCw,
+  Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,18 +20,28 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Layout } from '@/components/layout/Layout';
 import { AudioButton } from '@/components/AudioButton';
-import { getLessonById } from '@/data/lessons';
+import { NextStepPanel } from '@/components/NextStepPanel';
+import { getLessonById, getLessonsByLanguage } from '@/data/lessons';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 export default function LessonDetail() {
   const { lessonId } = useParams<{ lessonId: string }>();
+  const { selectedLanguage } = useLanguage();
   const lesson = getLessonById(lessonId || '');
+  const lessons = getLessonsByLanguage(selectedLanguage.id);
   const { toast } = useToast();
   
   const [quizAnswers, setQuizAnswers] = useState<Record<string, string>>({});
   const [quizResults, setQuizResults] = useState<Record<string, boolean>>({});
   const [typingAnswers, setTypingAnswers] = useState<Record<string, string>>({});
+
+  // Find the next lesson
+  const currentIndex = lessons.findIndex(l => l.id === lessonId);
+  const nextLesson = currentIndex >= 0 && currentIndex < lessons.length - 1 
+    ? lessons[currentIndex + 1] 
+    : null;
 
   if (!lesson) {
     return (
@@ -292,6 +304,35 @@ export default function LessonDetail() {
               </div>
             </TabsContent>
           </Tabs>
+        </div>
+      </section>
+
+      {/* Next Steps Panel */}
+      <section className="py-8 border-t border-border">
+        <div className="container">
+          <NextStepPanel
+            title="Ready for More?"
+            description="Reinforce what you learned or continue to the next lesson."
+            actions={[
+              ...(nextLesson ? [{
+                label: `Next: ${nextLesson.title}`,
+                href: `/lessons/${nextLesson.id}`,
+                icon: BookOpen
+              }] : []),
+              {
+                label: 'Review in Practice',
+                href: '/practice',
+                icon: RefreshCw,
+                variant: 'outline' as const
+              },
+              {
+                label: 'Take a Quiz',
+                href: '/practice',
+                icon: Brain,
+                variant: 'outline' as const
+              }
+            ]}
+          />
         </div>
       </section>
     </Layout>

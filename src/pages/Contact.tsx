@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, MessageSquare, Lightbulb, Send } from 'lucide-react';
+import { MessageSquare, Lightbulb, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Layout } from '@/components/layout/Layout';
+import { SubscribeForm } from '@/components/SubscribeForm';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -40,10 +41,6 @@ export default function Contact() {
   const [lessonHoneypot, setLessonHoneypot] = useState('');
   const [isSubmittingLesson, setIsSubmittingLesson] = useState(false);
 
-  // Newsletter Form
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const [newsletterHoneypot, setNewsletterHoneypot] = useState('');
-  const [isSubmittingNewsletter, setIsSubmittingNewsletter] = useState(false);
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,45 +122,6 @@ export default function Contact() {
     }
   };
 
-  const handleNewsletterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmittingNewsletter(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('send-newsletter', {
-        body: {
-          email: newsletterEmail,
-          honeypot: newsletterHoneypot,
-        },
-      });
-
-      if (error) throw error;
-
-      if (data?.error) {
-        toast({
-          title: "Error",
-          description: data.error,
-          variant: "destructive",
-        });
-      } else {
-        setNewsletterEmail('');
-        setNewsletterHoneypot('');
-        toast({
-          title: "Subscribed!",
-          description: "You'll receive updates about new lessons and features.",
-        });
-      }
-    } catch (error) {
-      console.error('Newsletter error:', error);
-      toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmittingNewsletter(false);
-    }
-  };
 
   return (
     <Layout>
@@ -346,42 +304,8 @@ export default function Contact() {
             </Card>
           </div>
 
-          {/* Newsletter */}
-          <Card className="max-w-2xl mx-auto mt-8 bg-primary/5 border-primary/20">
-            <CardContent className="p-8 text-center">
-              <Mail className="h-10 w-10 mx-auto mb-4 text-primary" />
-              <h2 className="text-xl font-bold font-serif mb-2">
-                Stay Updated
-              </h2>
-              <p className="text-muted-foreground mb-6">
-                Get notified when we add new lessons, languages, and features.
-              </p>
-              <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                {/* Honeypot field */}
-                <input
-                  type="text"
-                  name="phone"
-                  value={newsletterHoneypot}
-                  onChange={(e) => setNewsletterHoneypot(e.target.value)}
-                  className="absolute -left-[9999px] opacity-0 pointer-events-none"
-                  tabIndex={-1}
-                  autoComplete="off"
-                  aria-hidden="true"
-                />
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  required
-                  className="flex-1"
-                />
-                <Button type="submit" disabled={isSubmittingNewsletter}>
-                  {isSubmittingNewsletter ? 'Subscribing...' : 'Subscribe'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
+          {/* Newsletter - using reusable SubscribeForm */}
+          <SubscribeForm className="max-w-2xl mx-auto mt-8" />
         </div>
       </section>
     </Layout>
