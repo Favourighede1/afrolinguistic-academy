@@ -166,42 +166,50 @@ export default function Contact() {
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="contact-name">Name</Label>
+                      <Label htmlFor="contact-name">Name *</Label>
                       <Input
                         id="contact-name"
                         value={contactForm.name}
                         onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))}
                         required
+                        className="focus:ring-2 focus:ring-primary focus:border-primary"
+                        aria-required="true"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="contact-email">Email</Label>
+                      <Label htmlFor="contact-email">Email *</Label>
                       <Input
                         id="contact-email"
                         type="email"
                         value={contactForm.email}
                         onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))}
                         required
+                        className="focus:ring-2 focus:ring-primary focus:border-primary"
+                        aria-required="true"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contact-subject">Subject</Label>
+                    <Label htmlFor="contact-subject">Subject *</Label>
                     <Input
                       id="contact-subject"
                       value={contactForm.subject}
                       onChange={(e) => setContactForm(prev => ({ ...prev, subject: e.target.value }))}
                       required
+                      className="focus:ring-2 focus:ring-primary focus:border-primary"
+                      aria-required="true"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="contact-message">Message</Label>
+                    <Label htmlFor="contact-message">Message *</Label>
                     <Textarea
                       id="contact-message"
                       value={contactForm.message}
                       onChange={(e) => setContactForm(prev => ({ ...prev, message: e.target.value }))}
                       rows={4}
                       required
+                      className="focus:ring-2 focus:ring-primary focus:border-primary"
+                      aria-required="true"
                     />
                   </div>
                   <Button type="submit" disabled={isSubmittingContact} className="w-full gap-2">
@@ -239,32 +247,37 @@ export default function Contact() {
                   />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="lesson-name">Name</Label>
+                      <Label htmlFor="lesson-name">Name *</Label>
                       <Input
                         id="lesson-name"
                         value={lessonForm.name}
                         onChange={(e) => setLessonForm(prev => ({ ...prev, name: e.target.value }))}
                         required
+                        className="focus:ring-2 focus:ring-primary focus:border-primary"
+                        aria-required="true"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lesson-email">Email</Label>
+                      <Label htmlFor="lesson-email">Email *</Label>
                       <Input
                         id="lesson-email"
                         type="email"
                         value={lessonForm.email}
                         onChange={(e) => setLessonForm(prev => ({ ...prev, email: e.target.value }))}
                         required
+                        className="focus:ring-2 focus:ring-primary focus:border-primary"
+                        aria-required="true"
                       />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lesson-language">Language</Label>
+                    <Label htmlFor="lesson-language">Language *</Label>
                     <Select 
                       value={lessonForm.language} 
                       onValueChange={(value) => setLessonForm(prev => ({ ...prev, language: value }))}
+                      required
                     >
-                      <SelectTrigger id="lesson-language">
+                      <SelectTrigger id="lesson-language" className="focus:ring-2 focus:ring-primary focus:border-primary">
                         <SelectValue placeholder="Select a language" />
                       </SelectTrigger>
                       <SelectContent>
@@ -277,13 +290,15 @@ export default function Contact() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lesson-topic">Topic</Label>
+                    <Label htmlFor="lesson-topic">Topic *</Label>
                     <Input
                       id="lesson-topic"
                       placeholder="e.g., Ordering food at a restaurant"
                       value={lessonForm.topic}
                       onChange={(e) => setLessonForm(prev => ({ ...prev, topic: e.target.value }))}
                       required
+                      className="focus:ring-2 focus:ring-primary focus:border-primary"
+                      aria-required="true"
                     />
                   </div>
                   <div className="space-y-2">
@@ -294,6 +309,7 @@ export default function Contact() {
                       value={lessonForm.details}
                       onChange={(e) => setLessonForm(prev => ({ ...prev, details: e.target.value }))}
                       rows={3}
+                      className="focus:ring-2 focus:ring-primary focus:border-primary"
                     />
                   </div>
                   <Button type="submit" disabled={isSubmittingLesson} className="w-full">

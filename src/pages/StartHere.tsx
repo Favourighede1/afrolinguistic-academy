@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   BookOpen, 
@@ -13,6 +14,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { PlacementQuizModal } from '@/components/PlacementQuizModal';
+import { PronunciationPlayButton } from '@/components/PronunciationPlayButton';
 
 const pronunciationGuide = [
   {
@@ -89,6 +92,10 @@ const learningPath = [
 
 export default function StartHere() {
   const { selectedLanguage } = useLanguage();
+  const [quizOpen, setQuizOpen] = useState(false);
+
+  // Check which letters should have play buttons
+  const hasPlayButton = (letter: string) => ['Vb', 'Kp', 'Gb'].includes(letter);
 
   return (
     <Layout>
@@ -112,9 +119,14 @@ export default function StartHere() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" disabled className="gap-2 cursor-not-allowed">
-                Take Placement Quiz
-                <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded ml-1">Coming Soon</span>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => setQuizOpen(true)}
+              >
+                Take Quick Quiz
+                <Target className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -134,8 +146,13 @@ export default function StartHere() {
             {pronunciationGuide.map((item) => (
               <Card key={item.letter} className="border-border">
                 <CardContent className="pt-6">
-                  <div className="text-3xl font-bold text-primary font-mono mb-2">
-                    {item.letter}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-3xl font-bold text-primary font-mono">
+                      {item.letter}
+                    </div>
+                    {hasPlayButton(item.letter) && (
+                      <PronunciationPlayButton letter={item.letter} />
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">{item.sound}</p>
                   <p className="text-sm font-medium">
@@ -225,8 +242,8 @@ export default function StartHere() {
                 Not Sure Where to Start?
               </h2>
               <p className="text-muted-foreground mb-6">
-                Our placement quiz will help you find lessons matched to your level. 
-                For now, we recommend starting with Lesson 1.
+                Take our quick 3-question quiz to get a personalized recommendation, 
+                or jump straight into Lesson 1.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button size="lg" asChild className="gap-2">
@@ -235,18 +252,26 @@ export default function StartHere() {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" disabled className="gap-2 cursor-not-allowed">
-                  Placement Quiz
-                  <span className="text-xs bg-secondary text-secondary-foreground px-1.5 py-0.5 rounded ml-1">Soon</span>
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => setQuizOpen(true)}
+                >
+                  Take Quick Quiz
+                  <Target className="h-4 w-4" />
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-4">
-                Placement quiz coming soon • No account required
+                No account required • Takes 30 seconds
               </p>
             </CardContent>
           </Card>
         </div>
       </section>
+
+      {/* Placement Quiz Modal */}
+      <PlacementQuizModal open={quizOpen} onOpenChange={setQuizOpen} />
     </Layout>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { RotateCcw, Clock, Settings2, Volume2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface DailyReviewPanelProps {
   dueCardsCount: number;
@@ -13,6 +14,7 @@ interface DailyReviewPanelProps {
 }
 
 const CARD_COUNT_OPTIONS = [10, 20, 30] as const;
+const STREAK_KEY = 'afrolinguistic_practice_streak';
 
 export const DailyReviewPanel = ({ dueCardsCount, onStart }: DailyReviewPanelProps) => {
   const [showSettings, setShowSettings] = useState(false);
@@ -20,6 +22,19 @@ export const DailyReviewPanel = ({ dueCardsCount, onStart }: DailyReviewPanelPro
   const [includeAudio, setIncludeAudio] = useState(false);
 
   const estimatedMinutes = Math.ceil(Math.min(dueCardsCount, cardCount) * 0.5);
+
+  const handleStart = () => {
+    // Check if this is a new day practice
+    const lastPractice = localStorage.getItem(`${STREAK_KEY}_last`);
+    const today = new Date().toDateString();
+    
+    if (lastPractice !== today) {
+      localStorage.setItem(`${STREAK_KEY}_last`, today);
+      toast.success('🔥 Streak kept! Great job practicing today.');
+    }
+    
+    onStart({ cardCount, includeAudio });
+  };
 
   return (
     <Card className="bg-gradient-to-br from-primary/10 via-background to-accent/5 border-primary/20">
@@ -49,7 +64,7 @@ export const DailyReviewPanel = ({ dueCardsCount, onStart }: DailyReviewPanelPro
           <div className="flex flex-col gap-2">
             <Button 
               size="lg" 
-              onClick={() => onStart({ cardCount, includeAudio })}
+              onClick={handleStart}
               disabled={dueCardsCount === 0}
               className="whitespace-nowrap"
             >
