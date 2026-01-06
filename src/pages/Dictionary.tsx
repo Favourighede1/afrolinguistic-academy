@@ -4,6 +4,7 @@ import { Globe, RefreshCw, Brain } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Layout } from '@/components/layout/Layout';
 import { NextStepPanel } from '@/components/NextStepPanel';
+import { WordOfTheDay } from '@/components/WordOfTheDay';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAllDictionaryEntries, DictionaryEntry } from '@/data/dictionary';
@@ -180,6 +181,9 @@ export default function Dictionary() {
       {/* Results */}
       <section className="py-8">
         <div className="container">
+          {/* Word of the Day */}
+          <WordOfTheDay entries={allEntries} />
+
           {/* Entry count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-sm text-muted-foreground">

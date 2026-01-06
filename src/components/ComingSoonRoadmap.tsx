@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Bell, MessageSquarePlus, X } from 'lucide-react';
+import { MapPin, Bell, MessageSquarePlus, ThumbsUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +15,15 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
-const plannedLessons = [
+const VOTE_STORAGE_KEY = 'afrolinguistic_roadmap_votes';
+
+interface PlannedLesson {
+  title: string;
+  level: string;
+  topic: string;
+}
+
+const plannedLessons: PlannedLesson[] = [
   { title: 'Family Members', level: 'Beginner', topic: 'family' },
   { title: 'Food & Dining', level: 'Beginner', topic: 'food' },
   { title: 'Asking for Directions', level: 'Intermediate', topic: 'travel' },
@@ -27,6 +35,37 @@ export function ComingSoonRoadmap() {
   const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
   const [topicRequest, setTopicRequest] = useState('');
   const [email, setEmail] = useState('');
+  const [votes, setVotes] = useState<Record<string, number>>(() => {
+    if (typeof window === 'undefined') return {};
+    const saved = localStorage.getItem(VOTE_STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [votedTopics, setVotedTopics] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set();
+    const saved = localStorage.getItem(`${VOTE_STORAGE_KEY}_user`);
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  useEffect(() => {
+    localStorage.setItem(VOTE_STORAGE_KEY, JSON.stringify(votes));
+  }, [votes]);
+
+  useEffect(() => {
+    localStorage.setItem(`${VOTE_STORAGE_KEY}_user`, JSON.stringify([...votedTopics]));
+  }, [votedTopics]);
+
+  const handleVote = (lessonTitle: string) => {
+    if (votedTopics.has(lessonTitle)) {
+      toast.info('You already voted for this topic!');
+      return;
+    }
+    setVotes(prev => ({
+      ...prev,
+      [lessonTitle]: (prev[lessonTitle] || 0) + 1
+    }));
+    setVotedTopics(prev => new Set([...prev, lessonTitle]));
+    toast.success(`Vote recorded for "${lessonTitle}"!`);
+  };
 
   const handleRequestSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,10 +105,27 @@ export function ComingSoonRoadmap() {
                     {index + 1}.
                   </span>
                   <span className="font-medium">{lesson.title}</span>
+                  {(votes[lesson.title] || 0) > 0 && (
+                    <Badge variant="secondary" className="text-xs">
+                      {votes[lesson.title]} vote{votes[lesson.title] > 1 ? 's' : ''}
+                    </Badge>
+                  )}
                 </div>
-                <Badge variant="outline" className="text-xs">
-                  {lesson.level}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="text-xs">
+                    {lesson.level}
+                  </Badge>
+                  <Button
+                    variant={votedTopics.has(lesson.title) ? 'secondary' : 'ghost'}
+                    size="sm"
+                    onClick={() => handleVote(lesson.title)}
+                    className="gap-1 h-7 px-2"
+                    disabled={votedTopics.has(lesson.title)}
+                  >
+                    <ThumbsUp className={`h-3 w-3 ${votedTopics.has(lesson.title) ? 'text-primary' : ''}`} />
+                    <span className="text-xs">{votedTopics.has(lesson.title) ? 'Voted' : 'Vote'}</span>
+                  </Button>
+                </div>
               </div>
             ))}
           </div>

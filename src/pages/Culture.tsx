@@ -1,12 +1,16 @@
 import { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { ArrowRight, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Layout } from '@/components/layout/Layout';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { getCulturePostsByLanguage } from '@/data/culture';
 import { CultureFilters } from '@/components/culture/CultureFilters';
 import { CultureArticleCard } from '@/components/culture/CultureArticleCard';
 import { ComingSoonLanguages } from '@/components/culture/ComingSoonLanguages';
-import { Badge } from '@/components/ui/badge';
 
 export default function Culture() {
   const { selectedLanguage } = useLanguage();
@@ -52,6 +56,49 @@ export default function Culture() {
         />
       </Helmet>
 
+      {/* Featured Article Hero */}
+      {posts.length > 0 && (
+        <section className="py-12 md:py-16 bg-gradient-to-br from-primary/10 via-background to-accent/10">
+          <div className="container">
+            <div className="max-w-5xl mx-auto">
+              <Badge variant="outline" className="mb-4">
+                Featured Article
+              </Badge>
+              <Card className="overflow-hidden border-primary/20">
+                <div className="grid md:grid-cols-2 gap-0">
+                  <div className="aspect-video md:aspect-auto bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                    <span className="text-8xl opacity-50">
+                      {posts[0].category === 'History' ? '🏛️' : posts[0].category === 'Traditions' ? '🎭' : '🍲'}
+                    </span>
+                  </div>
+                  <CardContent className="p-6 md:p-8 flex flex-col justify-center">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge variant="secondary">{posts[0].category}</Badge>
+                      <span className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" />
+                        {posts[0].readingMinutes} min read
+                      </span>
+                    </div>
+                    <h1 className="text-2xl md:text-3xl font-bold font-serif text-foreground mb-3">
+                      {posts[0].title}
+                    </h1>
+                    <p className="text-muted-foreground mb-6">
+                      {posts[0].excerpt}
+                    </p>
+                    <Button asChild className="w-fit gap-2">
+                      <Link to={`/culture/${posts[0].slug}`}>
+                        Read Article
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </CardContent>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Header */}
       <section className="py-12 md:py-16 bg-gradient-to-br from-primary/5 via-background to-accent/10">
         <div className="container">
@@ -86,7 +133,7 @@ export default function Culture() {
         </div>
       </section>
 
-      {/* Articles Grid */}
+      {/* Articles Grid - exclude first article if showing featured hero */}
       <section className="py-12">
         <div className="container">
           {/* Results count */}
@@ -98,7 +145,8 @@ export default function Culture() {
 
           {filteredPosts.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredPosts.map((post) => (
+              {/* Skip first post if no filters are applied (it's shown in hero) */}
+              {(selectedCategory === 'All' && !searchQuery ? filteredPosts.slice(1) : filteredPosts).map((post) => (
                 <CultureArticleCard key={post.id} post={post} />
               ))}
             </div>
