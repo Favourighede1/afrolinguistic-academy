@@ -21,6 +21,7 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
+import YorubaYeMi from "./pages/YorubaYeMi";
 import { ScrollToTop } from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
                 <Route path="/culture" element={<Culture />} />
                 <Route path="/culture/:slug" element={<CultureArticle />} />
                 <Route path="/culture/edo-names" element={<EdoNames />} />
+                <Route path="/yoruba-ye-mi" element={<YorubaYeMi />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/login" element={<Login />} />
