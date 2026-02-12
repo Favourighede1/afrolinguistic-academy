@@ -13,7 +13,9 @@ export interface CulturePost {
   readingMinutes: number;
 }
 
-export const culturePosts: CulturePost[] = [
+import { yorubaCulturePosts } from './yoruba-culture';
+
+const edoCulturePosts: CulturePost[] = [
   {
     id: 'culture-1',
     languageId: 'edo',
@@ -161,6 +163,8 @@ Visit an Edo restaurant or try cooking at home to practice your vocabulary in a 
     readingMinutes: 5
   }
 ];
+
+export const culturePosts: CulturePost[] = [...edoCulturePosts, ...yorubaCulturePosts];
 
 export const getCulturePostsByLanguage = (languageId: string): CulturePost[] => {
   return culturePosts.filter(post => post.languageId === languageId);

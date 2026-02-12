@@ -39,7 +39,31 @@ const articleVocabulary: Record<string, Array<{ edo: string; pronunciation: stri
     { edo: 'Ẹhẹn', pronunciation: 'EH-hehn', english: 'Fish' },
     { edo: 'Iyan', pronunciation: 'ee-YAHN', english: 'Yam' },
     { edo: 'Ọka', pronunciation: 'oh-KAH', english: 'Corn' },
-  ]
+  ],
+  // Yoruba articles
+  'yoruba-titles-respect-culture': [
+    { edo: 'Ọba', pronunciation: 'oh-BAH', english: 'King' },
+    { edo: 'Olorì', pronunciation: 'oh-loh-REE', english: 'Queen' },
+    { edo: 'Olóyè', pronunciation: 'oh-LOH-yeh', english: 'Chief' },
+    { edo: 'Dókítà', pronunciation: 'DOH-kee-tah', english: 'Doctor' },
+    { edo: 'Káàárọ̀', pronunciation: 'kah-ah-ROH', english: 'Good morning' },
+    { edo: 'Kúuṣẹ́', pronunciation: 'koo-SHEH', english: 'Greeting for work' },
+  ],
+  'yoruba-names-meanings-traditions': [
+    { edo: 'Adékúnlé', pronunciation: 'ah-deh-KOON-leh', english: 'The crown has come home' },
+    { edo: 'Babátúndé', pronunciation: 'bah-bah-TOON-deh', english: 'Father has returned' },
+    { edo: 'Yéwándé', pronunciation: 'yeh-WAHN-deh', english: 'Mother has returned' },
+    { edo: 'Abíọ́dún', pronunciation: 'ah-bee-OH-doon', english: 'Born during a festival' },
+    { edo: 'Modúpẹ́', pronunciation: 'moh-DOO-peh', english: 'I am grateful' },
+  ],
+  'yoruba-food-culture-market-table': [
+    { edo: 'Oúnjẹ', pronunciation: 'oh-OON-jeh', english: 'Food' },
+    { edo: 'Omi', pronunciation: 'oh-MEE', english: 'Water' },
+    { edo: 'Ẹran', pronunciation: 'eh-RAHN', english: 'Meat' },
+    { edo: 'Ẹja', pronunciation: 'eh-JAH', english: 'Fish' },
+    { edo: 'Ìrẹ̀sì', pronunciation: 'ee-REH-see', english: 'Rice' },
+    { edo: 'Àgbàdo', pronunciation: 'ah-GBAH-doh', english: 'Corn' },
+  ],
 };
 
 // Names data for the names article
