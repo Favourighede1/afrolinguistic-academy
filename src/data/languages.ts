@@ -24,7 +24,7 @@ export const languages: Language[] = [
     nativeName: 'Yorùbá',
     region: 'West Africa',
     country: 'Nigeria',
-    enabled: false,
+    enabled: true,
     description: 'One of the largest languages in Africa, spoken by over 40 million people.'
   },
   {
