@@ -105,6 +105,92 @@ export const yorubaYeMiData: YorubaLesson[] = [
     ],
     tags: ['tones', 'titles', 'names', 'culture', 'introduction'],
   },
+  {
+    id: 'intro-names',
+    chapterNumber: 0,
+    chapterTitle: 'Introduction',
+    lessonTitle: 'Yorùbá Names',
+    pageStart: 19,
+    pageEnd: 19,
+    objectives: [
+      'Learn gender-specific and gender-neutral Yorùbá names',
+      'Understand that names reflect birth circumstances',
+    ],
+    sections: {
+      vocabulary: {
+        nouns: [
+          { yoruba: 'Adékúnlé', english: 'male name' },
+          { yoruba: 'Olúgbénga', english: 'male name' },
+          { yoruba: 'Babátúndé', english: 'male name' },
+          { yoruba: 'Similólú', english: 'female name' },
+          { yoruba: 'Folúkẹmi', english: 'female name' },
+          { yoruba: 'Yéwándé', english: 'female name' },
+          { yoruba: 'Abíọ́dún', english: 'neutral name' },
+          { yoruba: 'Olúfẹ́mi', english: 'neutral name' },
+          { yoruba: 'Modúpẹ́', english: 'neutral name' },
+        ],
+      },
+      grammarTopics: [
+        'Some names are gender-specific (male or female only)',
+        'Many Yorùbá names are gender-neutral',
+        'Names are given based on birth circumstances',
+      ],
+    },
+    summaries: [
+      'Yorùbá names can be male, female, or gender-neutral and reflect birth events.',
+      'Name meanings are discussed in detail in Book II of the series.',
+    ],
+    tags: ['names', 'culture', 'introduction'],
+  },
+  {
+    id: 'intro-communication',
+    chapterNumber: 0,
+    chapterTitle: 'Introduction',
+    lessonTitle: 'Communication in Class',
+    pageStart: 20,
+    pageEnd: 22,
+    objectives: [
+      'Use classroom commands in Yorùbá (singular and plural)',
+      'Distinguish honorific plural from informal singular forms',
+    ],
+    sections: {
+      vocabulary: {
+        phrases: [
+          { yoruba: 'Ẹ dákẹ́ ariwo!', english: 'Be quiet! (plural/respectful)' },
+          { yoruba: 'Dákẹ́ ariwo!', english: 'Be quiet! (singular)' },
+          { yoruba: 'Ẹ ṣí ìwé yín sí ojú ìwé…', english: 'Open your books to page… (plural)' },
+          { yoruba: 'Ṣí ìwé rẹ…', english: 'Open your book… (singular)' },
+          { yoruba: 'Ẹ dìde!', english: 'Stand up! (plural)' },
+          { yoruba: 'Dìde!', english: 'Stand up! (singular)' },
+          { yoruba: 'Ẹ pa ìwé yín dé', english: 'Close your books (plural)' },
+          { yoruba: 'Pa ìwé rẹ dé', english: 'Close your book (singular)' },
+          { yoruba: 'Ẹ túnun sọ', english: 'Repeat! (plural/respect)' },
+          { yoruba: 'Túnun sọ', english: 'Repeat! (singular)' },
+          { yoruba: 'Ẹ jọ̀wọ́', english: 'Please! (plural/respect)' },
+          { yoruba: 'Jọ̀wọ́', english: 'Please! (singular)' },
+          { yoruba: 'Ẹ fétísílẹ̀!', english: 'Listen! (plural)' },
+          { yoruba: 'Fétísílẹ̀!', english: 'Listen! (singular)' },
+          { yoruba: 'Ẹ jókòó!', english: 'Sit down! (plural)' },
+          { yoruba: 'Jókòó!', english: 'Sit down! (singular)' },
+          { yoruba: 'Ẹ sọ ọ́ ní Yorùbá', english: 'Say it in Yorùbá (plural)' },
+          { yoruba: 'Mo ní ìbéèrè', english: 'I have a question' },
+          { yoruba: 'Kí ni ìtúmọ̀…?', english: 'What is the meaning of…?' },
+          { yoruba: 'Ṣé ó yé yín?', english: 'Do you (pl.) understand?' },
+          { yoruba: 'Bẹ́ẹ̀ ni, ó yé wa', english: 'Yes, we understand' },
+        ],
+      },
+      grammarTopics: [
+        'Prefix "Ẹ" marks plural/honorific commands',
+        'Singular commands omit the "Ẹ" prefix',
+        'Classroom interaction phrases for teacher-student dialogue',
+      ],
+    },
+    summaries: [
+      'Classroom commands use "Ẹ" prefix for plural or respectful address.',
+      'Essential phrases for teacher-student interaction in a Yorùbá classroom.',
+    ],
+    tags: ['classroom', 'commands', 'communication', 'introduction'],
+  },
 
   // ── Chapter 1: Greetings ──
   {
