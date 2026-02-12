@@ -96,11 +96,6 @@ export function Header() {
                   onClick={() => {
                     if (!lang.enabled) return;
                     setSelectedLanguageId(lang.id);
-                    if (lang.id === 'yoruba') {
-                      navigate('/yoruba-ye-mi');
-                    } else if (location.pathname === '/yoruba-ye-mi') {
-                      navigate('/lessons');
-                    }
                   }}
                   className={cn(
                     !lang.enabled && 'opacity-50 cursor-not-allowed'

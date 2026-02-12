@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function Footer() {
+  const { selectedLanguage } = useLanguage();
+
   return (
     <footer className="border-t border-border bg-card mt-auto">
       <div className="container py-12">
@@ -87,8 +90,22 @@ export function Footer() {
           </div>
         </div>
 
-      <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground">
+      <div className="border-t border-border mt-8 pt-8 text-center text-sm text-muted-foreground space-y-2">
         <p>© {new Date().getFullYear()} Afrolinguistic Academy. 100% Free Forever.</p>
+        {selectedLanguage.id === 'yoruba' && (
+          <p className="text-xs">
+            Yorùbá content adapted from COERLL –{' '}
+            <em>Yorùbá Yé Mi</em> (CC 2012 The University of Texas at Austin).{' '}
+            <a
+              href="https://creativecommons.org/licenses/by-nc-sa/3.0/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline text-primary hover:text-primary/80"
+            >
+              CC BY-NC-SA 3.0
+            </a>
+          </p>
+        )}
       </div>
       </div>
     </footer>

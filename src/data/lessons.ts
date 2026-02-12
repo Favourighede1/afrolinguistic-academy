@@ -42,7 +42,9 @@ export interface Lesson {
   order: number;
 }
 
-export const lessons: Lesson[] = [
+import { yorubaLessons } from './yoruba-lessons';
+
+const edoLessons: Lesson[] = [
   {
     id: 'edo-greetings',
     languageId: 'edo',
@@ -230,6 +232,8 @@ export const lessons: Lesson[] = [
     ]
   }
 ];
+
+export const lessons: Lesson[] = [...edoLessons, ...yorubaLessons];
 
 export const getLessonsByLanguage = (languageId: string): Lesson[] => {
   return lessons.filter(lesson => lesson.languageId === languageId).sort((a, b) => a.order - b.order);

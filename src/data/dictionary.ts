@@ -12,7 +12,9 @@ export interface DictionaryEntry {
   audioUrl?: string;
 }
 
-export const dictionaryEntries: DictionaryEntry[] = [
+import { yorubaDictionaryEntries } from './yoruba-dictionary';
+
+const edoDictionaryEntries: DictionaryEntry[] = [
   // Greetings
   {
     id: 'dict-1',
@@ -318,6 +320,8 @@ export const dictionaryEntries: DictionaryEntry[] = [
     category: 'travel'
   }
 ];
+
+export const dictionaryEntries: DictionaryEntry[] = [...edoDictionaryEntries, ...yorubaDictionaryEntries];
 
 export const searchDictionary = (languageId: string, query: string): DictionaryEntry[] => {
   const lowerQuery = query.toLowerCase();
