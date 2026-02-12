@@ -22,7 +22,6 @@ const navLinks = [
   { href: '/practice', label: 'Practice' },
   { href: '/dictionary', label: 'Dictionary' },
   { href: '/culture', label: 'Culture' },
-  { href: '/yoruba-ye-mi', label: 'Yorùbá Yé Mi' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ];
