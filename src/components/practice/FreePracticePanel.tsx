@@ -158,7 +158,7 @@ export const FreePracticePanel = ({
           {getIcon(deck.type, deck.requiresAuth)}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm truncate">{deck.label}</p>
+          <p className="font-medium text-sm whitespace-normal break-words line-clamp-2">{deck.label}</p>
           {deck.description && (
             <p className="text-xs text-muted-foreground line-clamp-2">{deck.description}</p>
           )}
