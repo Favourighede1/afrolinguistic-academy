@@ -183,7 +183,7 @@ export default function Practice() {
             />
 
             {/* Two-column layout for Free Practice and Quiz */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6">
               <FreePracticePanel
                 lessons={lessons}
                 hardCardsCount={hardCards.length}
